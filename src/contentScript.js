@@ -1,43 +1,50 @@
-'use strict';
+const insert = (content) => {
+  const { Client } = require('@notionhq/client');
+  //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
 
-// Content script file will run in the context of web page.
-// With content script you can manipulate the web pages using
-// Document Object Model (DOM).
-// You can also pass information to the parent extension.
+  const notion = new Client({
+    auth: process.env.NOTION_API_KEY,
+  });
 
-// We execute this script by making an entry in manifest.json file
-// under `content_scripts` property
+  (async () => {
+    const blockId = '16d8004e5f6a42a6981151c22ddada12';
+    const response = await notion.blocks.children.append({
+      block_id: blockId,
+      children: [
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            text: [
+              {
+                type: 'text',
+                text: {
+                  content: '– Notion API Team',
+                  link: {
+                    type: 'url',
+                    url: 'https://twitter.com/NotionAPI',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    console.log(response);
+  })();
+};
 
-// For more information on Content Scripts,
-// See https://developer.chrome.com/extensions/content_scripts
-
-// Log `title` of current active web page
-const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
-console.log(
-  `Page title is: '${pageTitle}' - evaluated by Chrome extension's 'contentScript.js' file`
-);
-
-// Communicate with background file by sending a message
-chrome.runtime.sendMessage(
-  {
-    type: 'GREETINGS',
-    payload: {
-      message: 'Hello, my name is Con. I am from ContentScript.',
-    },
-  },
-  (response) => {
-    console.log(response.message);
-  }
-);
-
-// Listen for message
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'COUNT') {
-    console.log(`Current count is ${request.payload.count}`);
-  }
+  if (request.message === 'inject') {
+    const { content } = request;
 
-  // Send an empty response
-  // See https://github.com/mozilla/webextension-polyfill/issues/130#issuecomment-531531890
-  sendResponse({});
-  return true;
+    const result = insert(content);
+
+    if (!result) {
+      sendResponse({ status: 'failed' });
+    }
+
+    sendResponse({ status: 'success' });
+  }
 });

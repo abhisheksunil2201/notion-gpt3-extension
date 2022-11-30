@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Notion Gpt3 Writer",
+  "name": "Notion GPT-3 Life Advisor",
   "version": "0.1.0",
-  "description": "My Chrome Extension",
+  "description": "Get advice on anything that bothers you in life, and write out advice for others too.",
   "icons": {
     "16": "icons/icon_16.png",
     "32": "icons/icon_32.png",
@@ -13,21 +13,14 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Notion Gpt3 Writer",
+    "default_title": "Notion Gpt3 Extension",
     "default_popup": "popup.html"
   },
-  "permissions": [
-    "storage"
-  ],
+  "permissions": ["contextMenus", "tabs", "storage"],
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "run_at": "document_idle",
-      "js": [
-        "contentScript.js"
-      ]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["contentScript.js"]
     }
   ]
 }
